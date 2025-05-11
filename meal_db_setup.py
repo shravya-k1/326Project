@@ -68,6 +68,14 @@ add_meal(cursor, "Ground Turkey Tacos",
          ["ground turkey", "tortillas", "tomato", "onion", "cilantro", "lemon", "avocado"],
          "Cook ground turkey with diced onion. Serve in tortillas with tomato, avocado, cilantro, and a squeeze of lemon.")
 
-# Save and close
+add_meal(cursor, "Quinoa Power Bowl",
+         ["quinoa", "spinach", "tomato", "feta", "olive oil"],
+         "Cook and cool quinoa. Toss with chopped spinach, tomato, and feta. Drizzle with olive oil, honey, and balsamic vinegar."
+         
+add_meal(cursor, "Avocado Toast",
+         ["whole grain bread", "avocado", "lemond juice", "sea salt", "black pepper"],
+         "Toast bread. Mash avocado with lemon juice, a dash of salt and pepper. Then spread on toast." 
+    
+# Saved and close
 conn.commit()
 conn.close()
