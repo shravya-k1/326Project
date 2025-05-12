@@ -70,12 +70,53 @@ add_meal(cursor, "Ground Turkey Tacos",
 
 add_meal(cursor, "Quinoa Power Bowl",
          ["quinoa", "spinach", "tomato", "feta", "olive oil"],
-         "Cook and cool quinoa. Toss with chopped spinach, tomato, and feta. Drizzle with olive oil, honey, and balsamic vinegar."
+         "Cook and cool quinoa. Toss with chopped spinach, tomato, and feta. Drizzle with olive oil, honey, and balsamic vinegar.")
          
 add_meal(cursor, "Avocado Toast",
          ["whole grain bread", "avocado", "lemond juice", "sea salt", "black pepper"],
-         "Toast bread. Mash avocado with lemon juice, a dash of salt and pepper. Then spread on toast." 
-    
+         "Toast bread. Mash avocado with lemon juice, a dash of salt and pepper. Then spread on toast." )
+
+add_meal(cursor, "Greek Yogurt Parfait",
+    ["plain Greek yogurt", "honey", "granola", "strawberries", "blueberries"],
+    "Layer yogurt, drizzle honey, then granola and mixed berries. Serve immediately."
+)
+
+add_meal(cursor, "Buddha Bowl",
+    ["brown rice", "roasted chickpeas", "steamed broccoli", "carrot ribbons", "hummus"],
+    "Assemble rice, veggies, chickpeas and a dollop of hummus. Drizzle with lemon-tahini."
+)
+
+add_meal(cursor, "Spinach & Feta Egg Muffins",
+    ["eggs", "spinach", "feta cheese", "salt", "pepper"],
+    "Whisk eggs with chopped spinach and feta. Pour into muffin tin and bake at 350°F for 18–20 min."
+)
+
+add_meal(cursor, "Overnight Oats",
+    ["old-fashioned oats", "almond milk", "chia seeds", "maple syrup", "banana slices"],
+    "Combine all in jar, stir, refrigerate overnight. Top with banana before eating."
+)
+
+
+add_meal(cursor, "Honey Mustard Chicken Skewers",
+    ["chicken breast", "honey", "Dijon mustard", "olive oil", "garlic", "salt", "pepper"],
+    "Cut chicken into 1-inch cubes. Whisk honey, mustard, oil, minced garlic, salt & pepper. 3. Toss chicken in marinade and refrigerate 30 min. 4. Thread onto skewers and grill 4–5 min per side until cooked through."
+)
+
+add_meal(cursor, "One-Pan Lemon Garlic Chicken",
+    ["chicken thighs", "lemon", "garlic", "olive oil", "rosemary", "salt", "pepper"],
+    "Preheat oven to 400 °F. In a baking dish, place chicken thighs skin-side up. Drizzle olive oil, juice of half a lemon, minced garlic, chopped rosemary, salt & pepper over chicken. Roast 25–30 min until golden and juices run clear."
+)
+
+add_meal(cursor, "Chicken & Vegetable Stir-Fry",
+    ["chicken breast", "bell pepper", "broccoli", "carrot", "soy sauce", "sesame oil", "garlic", "ginger"],
+    "Slice chicken thinly and veggies into bite-size pieces. Heat oil in a wok; sauté garlic & ginger 30 sec. Add chicken and cook until no longer pink. Toss in vegetables, splash soy sauce, stir-fry 4–5 min until crisp-tender."
+)
+
+add_meal(cursor, "Slow-Cooker Shredded Chicken Tacos",
+    ["chicken breasts", "tomato sauce", "chicken broth", "chili powder", "cumin", "onion powder", "tortillas"],
+    "Place chicken in slow cooker. Pour tomato sauce, broth, and spices over top. Cook on low 6–7 hr (or high 3 hr). Shred chicken with forks and serve in warm tortillas with your favorite toppings."
+)
+
 # Saved and close
 conn.commit()
 conn.close()
