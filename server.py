@@ -17,7 +17,7 @@ class SimpleHandler(BaseHTTPRequestHandler):
         parsed_path = urlparse(self.path)
         if parsed_path.path == '/':
             self._set_headers('text/html')
-            with open('templates/index.html', 'rb') as file:
+            with open('Home.html', 'rb') as file:
                 self.wfile.write(file.read())
         elif parsed_path.path == '/api/recipes':
             self._set_headers()
