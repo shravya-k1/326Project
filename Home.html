@@ -134,7 +134,7 @@
     <select id="typeFilter">
       <option value="">All types</option>
       <option value="Breakfast">Breakfast</option>
-      <option value="Lunch / Dinner">Lunch / Dinner</option>
+      <option value="Lunch">Lunch</option>
       <option value="Dinner" >Dinner</option>
       <option value="Snacks">Snacks</option>
     </select>
@@ -148,22 +148,23 @@
   <div id="recipesContainer" class="grid"></div>
 
   <script>
-    // isVegetarian flag
-    const recipes = [
-      { name: "Vegan Chickpea Salad",       type: "lunch",     isVegetarian: true  },
-      { name: "Tofu Stir Fry",               type: "dinner",    isVegetarian: true  },
-      { name: "Grilled Chicken Bowl",        type: "dinner",    isVegetarian: false },
-      { name: "Lemon Garlic Salmon",         type: "dinner",    isVegetarian: false },
-      { name: "Oatmeal",                     type: "breakfast", isVegetarian: true  },
-      { name: "Fruit",                       type: "snacks",    isVegetarian: true  },
-      // chicken recipes (seperates veggie and nonveg)
-      { name: "Honey Mustard Chicken Skewers", type: "dinner",  isVegetarian: false },
-      { name: "Chicken Caesar Salad",         type: "lunch",    isVegetarian: false },
-      { name: "One-Pan Lemon Garlic Chicken", type: "dinner",  isVegetarian: false },
-      { name: "Chicken & Vegetable Stir-Fry", type: "dinner",  isVegetarian: false },
-      { name: "Quinoa-Stuffed Chicken Breasts", type: "dinner", isVegetarian: false },
-      { name: "Slow-Cooker Shredded Chicken Tacos", type: "dinner", isVegetarian: false },
-    ];
+    let recipes = [];
+
+    document.addEventListener("DOMContentLoaded", () => {
+    Papa.parse("/Static/DailyDish_Recipies(Sheet1).csv", {
+        download: true,
+        header: true,
+        skipEmptyLines: true,
+        complete: function(results) {
+            recipes = results.data.map(row => ({
+            name: row["NAME"],
+            type: row["Meal-Type"],
+            isVegetarian: row["Vegetarian"]?.toLowerCase() === "true"
+        }));
+        render(recipes);
+        }
+    });
+    });
 
     const container   = document.getElementById("recipesContainer");
     const searchInput = document.getElementById("searchInput");
@@ -178,7 +179,7 @@
         card.innerHTML = `
           <h3>${r.name}</h3>
           <p>Type: ${r.type}</p>
-          <p class="${r.isVegetarian ? 'veg' : 'nonveg'}">\${r.isVegetarian ? "🌱 Vegetarian" : "🍗 Non-Vegetarian"}</p>
+          <p>${r.isVegetarian ? "🌱 Vegetarian" : "🍗 Non-Vegetarian"}</p>
         `;
         container.appendChild(card);
       });
@@ -191,7 +192,17 @@
 
       const filtered = recipes.filter(r => {
         const matchesText = r.name.toLowerCase().includes(text);
-        const matchesType = !type || r.type === type;
+        let matchesType = true;
+        if (type) {
+          if (type === "Dinner") {
+            matchesType = r.type === "Dinner" || r.type === "Lunch / Dinner";
+          } else if (type === "Lunch") {
+        matchesType = r.type === "Lunch" || r.type === "Lunch / Dinner";
+          } else {
+            matchesType = r.type === type;
+          }
+        }
+        
         const matchesVeg  =
           !veg ||
           (veg === "veg"     && r.isVegetarian) ||
