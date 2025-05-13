@@ -255,14 +255,18 @@
   </header>
 
   <div class="controls">
-    <input id="searchInput" type="text" placeholder="Search recipes..." class="search-input">
-    <select id="categoryFilter" class="filter-select">
-      <option value="">All Categories</option>
-      <!-- Categories will be populated by JavaScript -->
+    <input id="searchInput" type="text" placeholder="Search recipes…" class="search-input">
+    <select id="typeFilter" class="filter-select">
+      <option value="">All types</option>
+      <option value="Breakfast">Breakfast</option>
+      <option value="Lunch">Lunch</option>
+      <option value="Dinner">Dinner</option>
+      <option value="Snacks">Snacks</option>
     </select>
-    <select id="areaFilter" class="filter-select">
-      <option value="">All Cuisines</option>
-      <!-- Areas will be populated by JavaScript -->
+    <select id="vegFilter" class="filter-select">
+      <option value="">All</option>
+      <option value="veg">Vegetarian</option>
+      <option value="non-veg">Non-Vegetarian</option>
     </select>
   </div>
 
@@ -280,12 +284,10 @@
       const loadingElement = document.getElementById('loading');
       const errorElement = document.getElementById('error');
       const searchInput = document.getElementById('searchInput');
-      const categoryFilter = document.getElementById('categoryFilter');
-      const areaFilter = document.getElementById('areaFilter');
+      const typeFilter = document.getElementById('typeFilter');
+      const vegFilter = document.getElementById('vegFilter');
       
       let meals = [];
-      let categories = [];
-      let areas = [];
       let isLoading = false;
       let hasMore = true;
       
@@ -294,25 +296,7 @@
         try {
           loadingElement.style.display = 'block';
           
-          // Fetch categories and areas first
-          const [categoriesRes, areasRes] = await Promise.all([
-            fetch('https://www.themealdb.com/api/json/v1/1/list.php?c=list'),
-            fetch('https://www.themealdb.com/api/json/v1/1/list.php?a=list')
-          ]);
-          
-          if (!categoriesRes.ok || !areasRes.ok) throw new Error('Failed to fetch filters');
-          
-          const categoriesData = await categoriesRes.json();
-          const areasData = await areasRes.json();
-          
-          categories = categoriesData.meals || [];
-          areas = areasData.meals || [];
-          
-          // Populate filter dropdowns
-          populateFilter(categoryFilter, categories, 'strCategory');
-          populateFilter(areaFilter, areas, 'strArea');
-          
-          // Then fetch initial meals
+          // Fetch initial meals
           await fetchMoreMeals();
           
           // Set up infinite scroll
@@ -334,17 +318,6 @@
         if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 500) {
           fetchMoreMeals();
         }
-      }
-      
-      // Populate filter dropdown
-      function populateFilter(selectElement, items, propertyName) {
-        selectElement.innerHTML = `<option value="">All ${selectElement.id.replace('Filter', '')}</option>`;
-        items.forEach(item => {
-          const option = document.createElement('option');
-          option.value = item[propertyName];
-          option.textContent = item[propertyName];
-          selectElement.appendChild(option);
-        });
       }
       
       // Fetch more meals from TheMealDB API
@@ -400,6 +373,15 @@
         return instructions.split('\r\n').filter(step => step.trim() !== '');
       }
       
+      // Check if meal is vegetarian
+      function isVegetarian(meal) {
+        const ingredients = getIngredients(meal);
+        const nonVegIngredients = ['chicken', 'beef', 'pork', 'lamb', 'fish', 'seafood', 'meat'];
+        return !ingredients.some(ing => 
+          nonVegIngredients.some(nonVeg => ing.toLowerCase().includes(nonVeg))
+        );
+      }
+      
       // Render meals to the DOM
       function renderMeals(mealsToRender) {
         // Don't clear the container, we're appending
@@ -408,16 +390,42 @@
           return;
         }
         
-        // Only render new meals to avoid duplicates
-        const startIndex = recipesContainer.children.length;
+        // Get filter values
+        const searchText = searchInput.value.toLowerCase();
+        const typeValue = typeFilter.value;
+        const vegValue = vegFilter.value;
         
-        for (let i = startIndex; i < mealsToRender.length; i++) {
-          const meal = mealsToRender[i];
+        // Filter meals
+        const filtered = mealsToRender.filter(meal => {
+          // Search filter
+          const matchesSearch = meal.strMeal.toLowerCase().includes(searchText);
+          
+          // Type filter (matches any save button type)
+          const matchesType = !typeValue || 
+            ['breakfast', 'lunch', 'dinner', 'snacks', 'dessert'].some(
+              type => type.toLowerCase().includes(typeValue.toLowerCase())
+            );
+          
+          // Veg filter
+          let matchesVeg = true;
+          if (vegValue === 'veg') {
+            matchesVeg = isVegetarian(meal);
+          } else if (vegValue === 'non-veg') {
+            matchesVeg = !isVegetarian(meal);
+          }
+          
+          return matchesSearch && matchesType && matchesVeg;
+        });
+        
+        // Clear and render filtered meals
+        recipesContainer.innerHTML = '';
+        filtered.forEach(meal => {
           const card = document.createElement('div');
           card.className = 'card';
           
           const ingredients = getIngredients(meal);
           const instructions = formatInstructions(meal.strInstructions);
+          const vegetarian = isVegetarian(meal);
           
           card.innerHTML = `
             <div class="saved-notice">Saved</div>
@@ -425,8 +433,7 @@
             <div class="card-content">
               <h3 class="card-title">${meal.strMeal}</h3>
               <div class="card-meta">
-                <span>${meal.strCategory}</span>
-                <span>${meal.strArea}</span>
+                <span>${vegetarian ? 'Vegetarian' : 'Non-Vegetarian'}</span>
               </div>
               <div class="tags-container">
                 ${meal.strTags ? meal.strTags.split(',').map(tag => 
@@ -491,7 +498,7 @@
                   id: mealId,
                   name: mealName,
                   image: meal.strMealThumb,
-                  category: meal.strCategory
+                  vegetarian: isVegetarian(meal)
                 });
                 
                 // Save back to localStorage
@@ -515,32 +522,13 @@
           });
           
           recipesContainer.appendChild(card);
-        }
-      }
-      
-      // Filter meals based on search and filters
-      function filterMeals() {
-        const searchText = searchInput.value.toLowerCase();
-        const category = categoryFilter.value;
-        const area = areaFilter.value;
-        
-        const filtered = meals.filter(meal => {
-          const matchesText = meal.strMeal.toLowerCase().includes(searchText);
-          const matchesCategory = !category || meal.strCategory === category;
-          const matchesArea = !area || meal.strArea === area;
-          
-          return matchesText && matchesCategory && matchesArea;
         });
-        
-        // When filtering, we need to re-render all meals
-        recipesContainer.innerHTML = '';
-        renderMeals(filtered);
       }
       
-      // Event listeners
-      searchInput.addEventListener('input', filterMeals);
-      categoryFilter.addEventListener('change', filterMeals);
-      areaFilter.addEventListener('change', filterMeals);
+      // Event listeners for filters
+      searchInput.addEventListener('input', () => renderMeals(meals));
+      typeFilter.addEventListener('change', () => renderMeals(meals));
+      vegFilter.addEventListener('change', () => renderMeals(meals));
       
       // Initial load
       initializeApp();
