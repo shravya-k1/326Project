@@ -1,35 +1,49 @@
+import pandas as pd
 import sqlite3
 
-# Connect to database
-conn = sqlite3.connect("meals.db")
-cursor = conn.cursor()
+#Create a recipes database from the csv file
+def recipes_db(filepath, db_name = "meals.db"):
+    df = pd.read_csv(filepath, encoding="latin1")
+    conn = sqlite3.connect(db_name)
+    results = df.to_sql("meals", conn, if_exists="replace", index=False) 
+    
+    conn.close()
+    return results
 
+if __name__ == "__main__":
+    csv_file = "Static/DailyDish_Recipies(Sheet1).csv"
+    db_df = recipes_db(csv_file)
+
+
+
+
+""" 
 # Create 'meals' table
 cursor.execute("""
-CREATE TABLE IF NOT EXISTS meals (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL
-)
+#CREATE TABLE IF NOT EXISTS meals (
+#    id INTEGER PRIMARY KEY AUTOINCREMENT,
+#    name TEXT NOT NULL
+#)
 """)
 
 # Create 'ingredients' table with meal_id
 cursor.execute("""
-CREATE TABLE IF NOT EXISTS ingredients (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    meal_id INTEGER,
-    name TEXT NOT NULL,
-    FOREIGN KEY (meal_id) REFERENCES meals(id)
-)
+#CREATE TABLE IF NOT EXISTS ingredients (
+#    id INTEGER PRIMARY KEY AUTOINCREMENT,
+#    meal_id INTEGER,
+#    name TEXT NOT NULL,
+#    FOREIGN KEY (meal_id) REFERENCES meals(id)
+#)
 """)
 
 # Create 'recipes' table with meal_id
 cursor.execute("""
-CREATE TABLE IF NOT EXISTS recipes (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    meal_id INTEGER,
-    instructions TEXT NOT NULL,
-    FOREIGN KEY (meal_id) REFERENCES meals(id)
-)
+#CREATE TABLE IF NOT EXISTS recipes (
+#    id INTEGER PRIMARY KEY AUTOINCREMENT,
+#    meal_id INTEGER,
+#    instructions TEXT NOT NULL,
+#    FOREIGN KEY (meal_id) REFERENCES meals(id)
+#)
 """)
 
 # Function to add meal, ingredients, and instructions
@@ -116,7 +130,5 @@ add_meal(cursor, "Slow-Cooker Shredded Chicken Tacos",
     ["chicken breasts", "tomato sauce", "chicken broth", "chili powder", "cumin", "onion powder", "tortillas"],
     "Place chicken in slow cooker. Pour tomato sauce, broth, and spices over top. Cook on low 6–7 hr (or high 3 hr). Shred chicken with forks and serve in warm tortillas with your favorite toppings."
 )
-
+"""
 # Saved and close
-conn.commit()
-conn.close()
