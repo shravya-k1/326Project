@@ -53,7 +53,7 @@ class SimpleHandler(BaseHTTPRequestHandler):
 
             self.wfile.write(json.dumps(recipe_list).encode('utf-8'))
 
-        elif parsed_path.path.startswith('/static/'):
+        elif parsed_path.path.startswith('/Static/'):
             file_path = '.' + parsed_path.path
             if os.path.isfile(file_path):
                 self._set_headers('text/csv')
